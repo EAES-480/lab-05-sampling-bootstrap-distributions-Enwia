@@ -11,6 +11,9 @@ output:
     toc_float: true
     code_folding: hide
     df_print: paged
+  pdf_document:
+    toc: true
+    toc_depth: '3'
 editor_options:
   chunk_output_type: inline
 ---
@@ -54,7 +57,7 @@ Use slides + past labs + Discord as needed, but make sure your final code is **y
 
 Complete the pipeline so `df` is a clean tibble. Filter for 2023, and replace fill values (-9999) with na.
 
-```{r load_data, echo=TRUE, eval=FALSE}
+```{r load_data, echo=TRUE, eval=TRUE}
 # GOAL: Read the CSV from the repo and clean column names.
 # TODO: finish this pipeline.
 
@@ -72,7 +75,7 @@ Write code to add:
 - `month` as labeled abbreviated month (Jan–Dec)
 - `day_night` as "Day"/"Night" from `daytime` (0/1)
 
-```{r derive_time, echo=TRUE, eval=FALSE}
+```{r derive_time, echo=TRUE, eval=TRUE}
 # GOAL: Create date/month/day_night columns.
 # HINT: DOY is 1-indexed, so use (doy - 1) with origin "YYYY-01-01".
 
@@ -101,7 +104,7 @@ df %>% count(day_night)
 
 Pick **2–3 variables** to analyze. Include at least **one flux** variable (e.g., `nee`, `fc`, `gpp`) and optionally one meteorological variable (e.g., `ta`, `le`).
 
-```{r choose_vars, echo=TRUE, eval=FALSE}
+```{r choose_vars, echo=TRUE, eval=TRUE}
 vars <- c(
   "fc",  # e.g., "fc"
   "ta",  # e.g., "ta"
@@ -120,7 +123,7 @@ Complete the code to compute **population mean** and **population SD** for each 
 
 Your output should be a tibble named `pop` with columns: `var`, `mean`, `sd`.
 
-```{r pop_params, echo=TRUE, eval=FALSE}
+```{r pop_params, echo=TRUE, eval=TRUE}
 # GOAL: Create a tidy table of population parameters for vars.
 # TODO: complete this pipeline.
 
@@ -171,7 +174,7 @@ Write code to:
 
 Return a tibble with columns: `var`, `sample_mean`, `pop_mean`, `rel_error_pct`.
 
-```{r one_sample_relerr, echo=TRUE, eval=FALSE}
+```{r one_sample_relerr, echo=TRUE, eval=TRUE}
 # GOAL: Relative error for point estimates from one random sample.
 
 set.seed(480)
@@ -204,7 +207,7 @@ Give a scientific reason why some variables are harder to estimate from a small 
 
 We will focus on **one variable** and simulate many repeated studies. The next code chunk is doing quite a lot. Please review the #comments throughout and check you understand generally what each section is doing.
 
-```{r relerr_by_n, echo=TRUE, eval=FALSE}
+```{r relerr_by_n, echo=TRUE, eval=TRUE}
 set.seed(480)
 
 n_grid <- c(25, 100, 300, 1000)   # e.g., c(25, 100, 300, 1000)
@@ -258,7 +261,7 @@ sim_relerr
 
 2) Make a plot that communicates “relative error decreases with n”.
 
-```{r summarize_plot_relerr, echo=TRUE, eval=FALSE}
+```{r summarize_plot_relerr, echo=TRUE, eval=TRUE}
 # GOAL: Summarize and plot the relationship between n and relative error.
 # TODO: write your own code.
 
@@ -313,7 +316,7 @@ Compute:
 - theoretical SE
 - simulated SD of sample means (over many replications)
 
-```{r se_compare, echo=TRUE, eval=FALSE}
+```{r se_compare, echo=TRUE, eval=TRUE}
 set.seed(480)
 
 # TODO: pick a variable and sample size
@@ -342,7 +345,7 @@ tibble(
 
 ### Plot the sampling distribution (fill-in)
 
-```{r plot_sampling_dist, echo=TRUE, eval=FALSE}
+```{r plot_sampling_dist, echo=TRUE, eval=TRUE}
 tibble(mean_est = means) %>%
   ggplot(aes(x = mean_est)) +
   geom_histogram(bins = 30, alpha = 0.85) +
@@ -379,7 +382,7 @@ Write code to:
 - compute bootstrap SD
 - plot the bootstrap distribution
 
-```{r bootstrap_mean, echo=TRUE, eval=FALSE}
+```{r bootstrap_mean, echo=TRUE, eval=TRUE}
 set.seed(480)
 
 # TODO: choose settings
@@ -404,7 +407,7 @@ tibble(
 )
 ```
 
-```{r plot_boot, echo=TRUE, eval=FALSE}
+```{r plot_boot, echo=TRUE, eval=TRUE}
 # TODO: plot boot_means and mark the sample mean
 tibble(boot_mean = boot_means) %>%
   ggplot(aes(x = boot_mean)) +
@@ -442,7 +445,7 @@ We will focus on **soil water content (`swc`)**.
 
 ## Preparation (recommended)
 
-```{r part2_prep, echo=TRUE, eval=FALSE}
+```{r part2_prep, echo=TRUE, eval=TRUE}
 # GOAL: Ensure df exists (loaded in Part I) and create a clean SWC population vector.
 
 swc_pop <- df$swc
@@ -464,35 +467,35 @@ tibble(
 
 **Task:** Draw a *simple random sample* of `n = 200` from the SWC population, then bootstrap the mean.
 
-```{r ex1_random_bootstrap, echo=TRUE, eval=FALSE}
+```{r ex1_random_bootstrap, echo=TRUE, eval=TRUE}
 set.seed(480)
 
-n_samp <- ___
+n_samp <- 200
 B <- 4000
 
 # 1) Draw a random sample (no replacement) from the population vector
-swc_samp_random <- sample(___, size = n_samp, replace = FALSE)
+swc_samp_random <- sample(swc_pop, size = n_samp, replace = FALSE)
 
 # 2) Bootstrap the mean (resample WITH replacement from the sample)
 boot_means_random <- replicate(
   B,
-  mean(sample(swc_samp_random, size = ___, replace = TRUE))
+  mean(sample(swc_samp_random, size = n_samp, replace = TRUE))
 )
 
 # 3) Summarize
 tibble(
   pop_mean = pop_mean_swc,
-  sample_mean = mean(___),
-  boot_sd = sd(___)
+  sample_mean = mean(swc_samp_random),
+  boot_sd = sd(boot_means_random)
 )
 ```
 
-```{r ex1_plot_random_boot, echo=TRUE, eval=FALSE}
+```{r ex1_plot_random_boot, echo=TRUE, eval=TRUE}
 # GOAL: Plot the bootstrap distribution and mark (i) sample mean and (ii) population mean.
 
 tibble(boot_mean = boot_means_random) %>%
   ggplot(aes(x = boot_mean)) +
-  geom_histogram(bins = ___, alpha = 0.85) +
+  geom_histogram(bins = 30, alpha = 0.85) +
   geom_vline(xintercept = mean(swc_samp_random), linetype = "dashed", linewidth = 1.1) +
   geom_vline(xintercept = pop_mean_swc, linetype = "solid", linewidth = 1.1) +
   theme_classic(base_size = 18) +
@@ -507,7 +510,7 @@ tibble(boot_mean = boot_means_random) %>%
 **Prompt (3–4 sentences):** Is the bootstrap distribution centered near the population mean?  
 What does the bootstrap SD represent here?
 
-> *Write your answer here.*
+> *The bootstrap distribution is a little centered near the population mean. Instead it is more centered near the sample mean. The bootstrap SD represents here is the standard deviation of the sample mean. From the data above the bootstrap SD shows the uncertainty based on the random sample.*
 
 ---
 
@@ -517,7 +520,7 @@ What does the bootstrap SD represent here?
 
 > This simulates a field campaign that only measured during summer.
 
-```{r ex2_summer_sample, echo=TRUE, eval=FALSE}
+```{r ex2_summer_sample, echo=TRUE, eval=TRUE}
 # GOAL: Build a summer-only pool of SWC observations (Jun–Aug), then sample from that pool.
 
 # TODO: ensure df has a month column.
@@ -525,27 +528,27 @@ What does the bootstrap SD represent here?
 # HINT: month(date, label = TRUE, abbr = TRUE)
 
 df_summer <- df %>%
-  filter(___ %in% c("Jun", "Jul", "Aug")) %>%
-  filter(!is.na(___))
+  filter(month %in% c("Jun", "Jul", "Aug")) %>%
+  filter(!is.na(swc))
 
 swc_summer_pool <- df_summer$swc
 
 length(swc_summer_pool)
 ```
 
-```{r ex2_summer_bootstrap, echo=TRUE, eval=FALSE}
+```{r ex2_summer_bootstrap, echo=TRUE, eval=TRUE}
 set.seed(480)
 
 n_samp <- 200
 B <- 4000
 
 # 1) Draw a summer-only sample
-swc_samp_summer <- sample(___, size = n_samp, replace = FALSE)
+swc_samp_summer <- sample(swc_summer_pool, size = n_samp, replace = FALSE)
 
 # 2) Bootstrap the mean from that sample
-boot_means_summer <- ___(
+boot_means_summer <- replicate(
   B,
-  mean(sample(___, size = n_samp, replace = TRUE))
+  mean(sample(swc_samp_summer, size = n_samp, replace = TRUE))
 )
 
 # 3) Summarize
@@ -557,12 +560,12 @@ tibble(
 )
 ```
 
-```{r ex2_plot_summer_boot, echo=TRUE, eval=FALSE}
+```{r ex2_plot_summer_boot, echo=TRUE, eval=TRUE}
 # GOAL: Plot summer bootstrap and compare to population mean.
 
 tibble(boot_mean = boot_means_summer) %>%
   ggplot(aes(x = boot_mean)) +
-  geom_histogram(bins = ___, alpha = 0.85) +
+  geom_histogram(bins = 30, alpha = 0.85) +
   geom_vline(xintercept = mean(swc_samp_summer), linetype = "dashed", linewidth = 1.1) +
   geom_vline(xintercept = pop_mean_swc, linetype = "solid", linewidth = 1.1) +
   theme_classic(base_size = 18) +
@@ -578,7 +581,7 @@ tibble(boot_mean = boot_means_summer) %>%
 Explain the difference between **precision** and **accuracy** in this example.  
 What *kind* of error is summer-only sampling introducing?
 
-> *Write your answer here.*
+> *Yes the bootstrap distribution looks confident and narrow even if its centered far from the population mean. In this example, precision refers to how tightly clustered the bootstrap estimates are while accuracy refers to how close the estimate is to the true population mean. Here the estimate is precise but not accurate, because it is centered near the summer sample mean rather than the true annual mean. We have a sampling error shown here due from bias only sampling summer data. *
 
 ---
 
@@ -588,7 +591,7 @@ What *kind* of error is summer-only sampling introducing?
 
 This is one way to make your sample more representative when the population has strong seasonality.
 
-```{r ex3_stratified_sample, echo=TRUE, eval=FALSE}
+```{r ex3_stratified_sample, echo=TRUE, eval=TRUE}
 set.seed(480)
 
 n_samp <- 240  # divisible by 12 makes this easy (20 per month)
@@ -596,9 +599,9 @@ k_per_month <- n_samp / 12
 
 # 1) Create a month-stratified sample from df
 df_strat <- df %>%
-  filter(!is.na(___)) %>%
-  group_by(___) %>%
-  slice_sample(n = ___) %>%
+  filter(!is.na(swc)) %>%
+  group_by(month) %>%
+  slice_sample(n = k_per_month) %>%
   ungroup()
 
 swc_samp_strat <- df_strat$swc
@@ -607,7 +610,7 @@ swc_samp_strat <- df_strat$swc
 df_strat %>% count(month)
 ```
 
-```{r ex3_strat_bootstrap, echo=TRUE, eval=FALSE}
+```{r ex3_strat_bootstrap, echo=TRUE, eval=TRUE}
 set.seed(480)
 
 B <- 4000
@@ -624,12 +627,12 @@ tibble(
 )
 ```
 
-```{r ex3_plot_strat_boot, echo=TRUE, eval=FALSE}
+```{r ex3_plot_strat_boot, echo=TRUE, eval=TRUE}
 # GOAL: Plot stratified bootstrap and compare to population mean.
 
 tibble(boot_mean = boot_means_strat) %>%
   ggplot(aes(x = boot_mean)) +
-  geom_histogram(bins = ___, alpha = 0.85) +
+  geom_histogram(bins = 30, alpha = 0.85) +
   geom_vline(xintercept = mean(swc_samp_strat), linetype = "dashed", linewidth = 1.1) +
   geom_vline(xintercept = pop_mean_swc, linetype = "solid", linewidth = 1.1) +
   theme_classic(base_size = 18) +
