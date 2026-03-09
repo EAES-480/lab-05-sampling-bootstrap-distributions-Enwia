@@ -648,7 +648,7 @@ tibble(boot_mean = boot_means_strat) %>%
 Which sampling design is most accurate for the annual mean? Which looks most precise?  
 What does this teach you about bootstrap and study design?
 
-> *Write your answer here.*
+> *The random and stratified bootstrap distributions are both centered to the population mean, while the summer-only is centered away from it. This shows that the summer-only sample is biased, even though its bootstrap distribution looks narrow. The sampling design most accurate is the stratified due to it being well-centered and narrow. The most precise is the summer-only due to it being the most narrowest. This demonstrates that bootstrap reflects the sampling design: it measures uncertainty within the sample but cannot fix bias.*
 
 ---
 
@@ -680,10 +680,10 @@ A 95% bootstrap confidence interval can be estimated using the **2.5% and 97.5% 
 
 Using the **random SWC sample from earlier**, compute a **95% bootstrap confidence interval for the mean**.
 
-```{r ex1_boot_ci_mean, echo=TRUE, eval=FALSE}
+```{r ex1_boot_ci_mean, echo=TRUE, eval=TRUE}
 # GOAL: compute the 2.5% and 97.5% quantiles of the bootstrap distribution
 
-quantile(boot_means_random, probs = c(___, ___))
+quantile(boot_means_random, probs = c(0.025, 0.975))
 ```
 
 **Prompt:**
@@ -691,13 +691,14 @@ quantile(boot_means_random, probs = c(___, ___))
 Does the confidence interval contain the **true population mean (`pop_mean_swc`)**?  
 What does this tell you about the uncertainty of the estimate?
 
+*Yes the confidence interval contains the true population mean because it is about 35.5 and it is bounded between 34.8 and 36.9. Since the population mean lies inside the 95% bootstrap confidence interval, the estimate from the sample is consistent with the true value. This tells us that the uncertainty of the estimate is reasonably captured by the interval and since it is captured by the interval it suggests that the estimate is reliable and not biased.*
 ---
 
 ## Exercise 2 — Visualizing the Confidence Interval
 
 Modify the bootstrap histogram from Part II so that the **95% CI is shown on the plot**.
 
-```{r ex2_plot_ci, echo=TRUE, eval=FALSE}
+```{r ex2_plot_ci, echo=TRUE, eval=TRUE}
 boot_ci <- quantile(boot_means_random, probs = c(0.025, 0.975))
 
 tibble(boot_mean = boot_means_random) %>%
@@ -711,7 +712,7 @@ tibble(boot_mean = boot_means_random) %>%
 **Prompt:**
 
 Explain what the **red vertical lines** represent.
-
+*The red vertical lines represent the range of values that are inside the 95% confidence interval.*
 ---
 
 ## Exercise 3 — Confidence Intervals for a Linear Model
@@ -729,11 +730,9 @@ Examples:
 - `swc ~ le`
 - `gpp ~ ta`
 
-```{r ex3_fit_model, echo=TRUE, eval=FALSE}
->> df_sample <- df %>% slice_sample(n = 1000, replace = FALSE)
-
-response_var <- "___"
-predictor_var <- "___"
+```{r ex3_fit_model, echo=TRUE, eval=TRUE}
+response_var <- "swc"
+predictor_var <- "ta"
 
 model <- lm(df[[response_var]] ~ df[[predictor_var]])
 
@@ -742,30 +741,32 @@ coef(model)
 
 ### Bootstrap the regression
 
-```{r ex3_bootstrap_lm, echo=TRUE, eval=FALSE}
+```{r ex3_bootstrap_lm, echo=TRUE, eval=TRUE}
+df_regression <-  df %>%
+  slice_sample(n = 1000, replace = FALSE)
+
 set.seed(480)
 
-B <- 2000
+B <- 1000
 
 boot_coef <- replicate(B, {
 
-  samp_rows <- df_sample %>% slice_sample(n = nrow(df_sample), replace = TRUE)
+  samp_rows <- df_regression %>% 
+    slice_sample(n = nrow(df_regression), replace = TRUE)
 
-  fit <- lm(
-    samp_rows[[response_var]] ~ samp_rows[[predictor_var]]
-  )
-
+  fit <- lm( samp_rows[[response_var]] ~ samp_rows[[predictor_var]]
+)
   coef(fit)
 
 })
 
 boot_coef <- t(boot_coef)
-boot_coef
+head(boot_coef, 20)
 ```
 
 ### Compute confidence intervals
 
-```{r ex3_ci_params, echo=TRUE, eval=FALSE}
+```{r ex3_ci_params, echo=TRUE, eval=TRUE}
 quantile(boot_coef[,1], probs = c(0.025, 0.975))  # intercept CI
 quantile(boot_coef[,2], probs = c(0.025, 0.975))  # slope CI
 ```
@@ -777,6 +778,7 @@ Interpret the slope confidence interval.
 - Does it include zero?
 - What does that imply about the relationship between the predictor and response variable?
 
+*The slope confidence interval does not include zero. This implies there is a negative relationship between the predictor and the response variable.*
 ---
 
 # Submission
